@@ -1,4 +1,4 @@
-package org.pujolitoo.CModpackDownloader;
+package org.pujolitoo.CModpackDownloader.ui;
 
 
 import java.awt.*;

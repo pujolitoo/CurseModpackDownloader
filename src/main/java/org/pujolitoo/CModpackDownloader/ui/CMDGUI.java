@@ -1,4 +1,4 @@
-package org.pujolitoo.CModpackDownloader;
+package org.pujolitoo.CModpackDownloader.ui;
 
 import java.awt.*;
 import javax.swing.*;
@@ -6,6 +6,9 @@ import javax.swing.GroupLayout;
 import javax.swing.LayoutStyle;
 import javax.swing.border.*;
 import java.io.File;
+
+import org.pujolitoo.CModpackDownloader.CModpackDownloader;
+import org.pujolitoo.CModpackDownloader.Utils;
 import org.pujolitoo.CModpackDownloader.event.Download;
 /*
  * Created by JFormDesigner on Wed Aug 25 13:07:11 CEST 2021

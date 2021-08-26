@@ -1,5 +1,7 @@
 package org.pujolitoo.CModpackDownloader;
 
+import org.pujolitoo.CModpackDownloader.ui.CMDGUI;
+
 import java.io.File;
 
 import javax.swing.JFrame;
