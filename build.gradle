@@ -45,3 +45,7 @@ jar{
         )
     }
 }
+
+shadowJar{
+    archiveFileName = project.name + ".jar"
+}
