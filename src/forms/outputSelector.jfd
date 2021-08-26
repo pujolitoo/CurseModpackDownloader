@@ -1,0 +1,32 @@
+JFDML JFormDesigner: "7.0.4.0.360" Java: "15.0.1" encoding: "UTF-8"
+
+new FormModel {
+	contentType: "form/swing"
+	root: new FormRoot {
+		add( new FormWindow( "javax.swing.JDialog", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
+			"$horizontalGroup": "par l {seq l {space :p:34:p, par l {comp label1::l:p:193:p, seq l {comp textField1:::p:311:p, space :::x, comp button2:::p:29:p}, comp button1::l:p:89:p}, space :::p}}"
+			"$verticalGroup": "par l {seq t {space :::p, comp label1:::::x, space :::p, par b {comp textField1::b:p::p, comp button2::b:p::p}, space :p:12:p, comp button1:::p::p, space :p:25:p}}"
+		} ) {
+			name: "this"
+			"modal": true
+			add( new FormComponent( "javax.swing.JButton" ) {
+				name: "button1"
+				"text": "Continue"
+			} )
+			add( new FormComponent( "javax.swing.JTextField" ) {
+				name: "textField1"
+			} )
+			add( new FormComponent( "javax.swing.JLabel" ) {
+				name: "label1"
+				"text": "Please enter an output file path (.zip):"
+			} )
+			add( new FormComponent( "javax.swing.JButton" ) {
+				name: "button2"
+				"text": "..."
+			} )
+		}, new FormLayoutConstraints( null ) {
+			"location": new java.awt.Point( 15, 0 )
+			"size": new java.awt.Dimension( 385, 130 )
+		} )
+	}
+}
