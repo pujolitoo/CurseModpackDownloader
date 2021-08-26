@@ -39,11 +39,11 @@ public class Download implements ActionListener{
     public void actionPerformed(ActionEvent e){
         this.frame.changeButtonEnable(false);
         this.frame.setIdFieldEnabled(false);
-        Toolkit.getDefaultToolkit().beep();
         Thread thread = new Thread(new Runnable(){
            @Override
            public void run(){
                 downloadModpack();
+                frame.setProgressBar1Indeterminate(false);
                 frame.changeButtonEnable(true);
                 frame.setIdFieldEnabled(true);  
            } 
@@ -104,6 +104,7 @@ public class Download implements ActionListener{
         frame.log("Getting modpack metadata...");
         project = Utils.getProjectMetadata(url, type);
         if(project == null){
+            Toolkit.getDefaultToolkit().beep();
             frame.log("Error: Empty Metadata.");
             JOptionPane.showMessageDialog(frame, "Modpack not found.", "Error", JOptionPane.ERROR_MESSAGE);
             return;
@@ -113,6 +114,7 @@ public class Download implements ActionListener{
             return;
         }
 
+        frame.setProgressBar1Indeterminate(true);
         Utils.download(project.getContentDownloadURL(), CModpackDownloader.tmpFolder.getAbsolutePath() + "/" + project.getFileName());
 
         frame.log("Extracting modpack contents...");

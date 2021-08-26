@@ -71,7 +71,7 @@ public class CMDGUI extends JFrame {
 			button1.setText("Download");
 
 			//---- progressBar1 ----
-			progressBar1.setValue(50);
+			progressBar1.setValue(0);
 			progressBar1.setForeground(new Color(51, 204, 0));
 
 			GroupLayout panel1Layout = new GroupLayout(panel1);
@@ -143,6 +143,14 @@ public class CMDGUI extends JFrame {
 
 	public void setIdFieldEnabled(boolean state){
 		this.textField1.setEnabled(state);
+	}
+
+	public void setProgressBar1Indeterminate(boolean state){
+		this.progressBar1.setIndeterminate(state);
+	}
+
+	public void setProgressBar1Value(int value){
+		this.progressBar1.setValue(value);
 	}
 
 	// JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables
