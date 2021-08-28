@@ -28,6 +28,7 @@ public class Download implements ActionListener{
     private CMDGUI frame;
     private String baseURL = "https://addons-ecs.forgesvc.net/api/v2";
     File outputPath;
+    boolean overrides;
 
     public Download(CMDGUI parentFrame){
         this.frame = parentFrame;
@@ -74,6 +75,7 @@ public class Download implements ActionListener{
     private File getOutputPath(){
         Output dialog = new Output(this.frame);
         dialog.setVisible(true);
+        this.overrides = dialog.getOverride();
         return dialog.getPath();
     }
 
@@ -89,14 +91,15 @@ public class Download implements ActionListener{
         File mods = new File(CModpackDownloader.tmpFolder, "/profile/mods");
         profile.mkdir();
         mods.mkdir();
+        String id = frame.getProjectId().replaceAll("\\s+", "");
         try{
-            Integer.parseInt(frame.getProjectId());
-            searchURL = "/addon/" + frame.getProjectId();
+            Integer.parseInt(id);
+            searchURL = "/addon/" + id;
             url = baseURL + searchURL;
             type = ProjectInfo.BY_ID;
         }catch(NumberFormatException e){
             searchURL = "/addon/search?gameId=432&categoryId=0&searchFilter=${projectSlug}&pageSize=20&index=$index&sort=1&sortDescending=true&sectionId=4471";
-            searchURL.replace("${projectSlug}", this.frame.getProjectId());
+            searchURL.replaceAll("${projectSlug}", id);
             url = baseURL + searchURL;
             type = ProjectInfo.BY_SEARCH;
         }
@@ -135,6 +138,32 @@ public class Download implements ActionListener{
 
         frame.log("Copying overrides...");
         copyOverride();
+
+        File zipFinal;
+        if(overrides){
+            outputPath.delete();
+            zipFinal = new File(outputPath.getAbsolutePath());
+        }else{
+            if(outputPath.exists()){
+                int samename = 0;
+                File directory = new File(outputPath.getAbsolutePath()
+                        .replaceAll(outputPath.getName(), ""));
+                String fileNamenoextension = outputPath.getName().replaceAll(".zip", "");
+                for(File f : directory.listFiles()){
+                    if(f.getName().contains(outputPath.getName())){
+                        samename++;
+                    }
+                }
+                for(int i = 0; i < samename; i++){
+                    zipFinal = new File(outputPath.getAbsolutePath().replace(fileNamenoextension, fileNamenoextension + "(" + i + ")"));
+                    if(!zipFinal.exists()){
+                        break;
+                    }
+                }
+            }else{
+                zipFinal = new File(outputPath.getAbsolutePath());
+            }
+        }
 
         System.out.println("Packing zip...");
         frame.log("Packing in zip...");

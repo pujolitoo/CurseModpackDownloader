@@ -108,6 +108,14 @@ public class Output extends JDialog {
 		if(!textField1.getText().equals("")){
 			if(textField1.getText().endsWith(".zip")){
 				path = new File(this.textField1.getText());
+				if(path.exists()){
+					int reply = JOptionPane.showConfirmDialog(this, "This file already exists. Do you want to override the file?", "Override", JOptionPane.YES_NO_OPTION);
+					if(reply==JOptionPane.YES_OPTION){
+						this.overrides = true;
+					}else{
+						return;
+					}
+				}
 				this.dispose();
 			}else{
 				Toolkit.getDefaultToolkit().beep();
@@ -135,8 +143,13 @@ public class Output extends JDialog {
 		return path;
 	}
 
+	public boolean getOverride(){
+		return overrides;
+	}
+
 	// JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables
 	// Generated using JFormDesigner Evaluation license - aaa
+	private boolean overrides;
 	private JButton button1;
 	private JTextField textField1;
 	private JLabel label1;
