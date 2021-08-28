@@ -98,8 +98,14 @@ public class Download implements ActionListener{
             url = baseURL + searchURL;
             type = ProjectInfo.BY_ID;
         }catch(NumberFormatException e){
-            searchURL = "/addon/search?gameId=432&categoryId=0&searchFilter=${projectSlug}&pageSize=20&index=$index&sort=1&sortDescending=true&sectionId=4471";
-            searchURL.replaceAll("${projectSlug}", id);
+            searchURL = "/addon/search?gameId=432&categoryId=0&searchFilter=#projectSlug#&pageSize=20&index=$index&sort=1&sortDescending=true&sectionId=4471";
+            searchURL = searchURL.replaceAll("#projectSlug#", id);
+            try {
+                JsonArray projectjson = (JsonArray) Utils.getJSON(baseURL + searchURL);
+                searchURL = "/addon/" + projectjson.getAsJsonArray().get(0).getAsJsonObject().get("id").getAsString();
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
+            }
             url = baseURL + searchURL;
             type = ProjectInfo.BY_SEARCH;
         }
@@ -195,7 +201,7 @@ public class Download implements ActionListener{
         JsonObject mod = null;
         for(int i = 0; i < mods.size(); i++){
             try {
-				mod = Utils.getJSON(modURL + mods.get(i).getAsJsonObject().get("projectID").getAsInt());
+				mod = Utils.getJSON(modURL + mods.get(i).getAsJsonObject().get("projectID").getAsInt()).getAsJsonObject();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

@@ -24,14 +24,14 @@ import com.google.gson.JsonArray;
 public class Utils {
     public static FileOutputStream stream;
     
-    public static JsonObject getJSON(String url) throws MalformedURLException, IOException{
+    public static JsonElement getJSON(String url) throws MalformedURLException, IOException{
 
         InputStream is = new URL(url).openStream();
         try {
         BufferedReader rd = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
         String jsonText = readAll(rd);
         System.out.println(jsonText);
-        JsonObject json = JsonParser.parseString(jsonText).getAsJsonObject();
+        JsonElement json = JsonParser.parseString(jsonText);
         return json;
         } finally {
             is.close();
@@ -61,26 +61,16 @@ public class Utils {
     public static Project getProjectMetadata(String url, ProjectInfo type){
         JsonObject obj = null;
         Project project = null;
-        if(type == ProjectInfo.BY_ID){
-            try {
-                obj = getJSON(url);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }catch(IllegalStateException e){
-                return null;
-            }
-            project = createProject(obj);
-        }else if(type.equals(ProjectInfo.BY_SEARCH)){
-            try {
-                obj = getJSON(url);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }catch(IllegalStateException e){
-                return null;
-            }
-            JsonObject projectJson = obj.getAsJsonArray().get(0).getAsJsonObject();
-            project = createProject(projectJson);
+        JsonObject projectJson = null;
+        try {
+            obj = getJSON(url).getAsJsonObject();
+            projectJson = (JsonObject) obj.getAsJsonObject();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }catch(IllegalStateException e){
+            return null;
         }
+        project = createProject(projectJson);
         return project;
     }
 
