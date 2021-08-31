@@ -3,6 +3,7 @@ package org.pujolitoo.CModpackDownloader.event;
 import java.awt.event.*;
 import java.io.IOException;
 
+import javax.rmi.CORBA.Util;
 import javax.swing.*;
 import javax.swing.JOptionPane;
 import java.awt.Toolkit;
@@ -18,6 +19,8 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonArray;
 import java.io.File;
+import java.net.URL;
+
 import net.lingala.zip4j.core.*;
 import net.lingala.zip4j.exception.ZipException;
 import net.lingala.zip4j.util.Zip4jConstants;
@@ -124,7 +127,11 @@ public class Download implements ActionListener{
         }
 
         frame.setProgressBar1Indeterminate(true);
-        Utils.download(project.getContentDownloadURL(), CModpackDownloader.tmpFolder.getAbsolutePath() + "/" + project.getFileName());
+        try {
+            Utils.download(project.getContentDownloadURL(), CModpackDownloader.tmpFolder.getAbsolutePath() + "/" + project.getFileName());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         frame.log("Extracting modpack contents...");
         try {
@@ -139,7 +146,11 @@ public class Download implements ActionListener{
         System.out.println(modlist);
 
         frame.log("Downloading mods...");
-        downloadMods(modlist);
+        if(!downloadMods(modlist)){
+            frame.setIdField("");
+            Utils.deleteTemp();
+            return;
+        }
         frame.log("Mods downloaded.");
 
         frame.log("Copying overrides...");
@@ -186,9 +197,8 @@ public class Download implements ActionListener{
 		}
 
         frame.setIdField("");
-        
-        Utils.deleteFolder(CModpackDownloader.tmpFolder);
-        CModpackDownloader.tmpFolder.mkdir();
+
+        Utils.deleteTemp();
         frame.log("Temp folder restored.");
         System.out.println("Temp folder deleted.");
         frame.log("Done!");
@@ -198,22 +208,58 @@ public class Download implements ActionListener{
     private boolean downloadMods(JsonObject manifest){
         String modURL = baseURL + "/addon/";
         JsonArray mods = manifest.get("files").getAsJsonArray();
-        JsonObject mod = null;
+        JsonObject modInfo = null;
+        JsonObject modFile = null;
         for(int i = 0; i < mods.size(); i++){
+            modInfo = getModInfo(manifest, i);
+            modFile = getModFile(manifest, i);
+            frame.log("Downloading mod " + "(" + i + "/" + mods.size() + "): " + modInfo.get("name").getAsString());
             try {
-				mod = Utils.getJSON(modURL + mods.get(i).getAsJsonObject().get("projectID").getAsInt()).getAsJsonObject();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-            for(int r = 0; r < mod.get("latestFiles").getAsJsonArray().size(); r++){
-                if(mod.get("latestFiles").getAsJsonArray().get(r).getAsJsonObject().get("id").getAsInt() == mods.get(i).getAsJsonObject().get("fileID").getAsInt()){
-                    String fileName = mod.get("latestFiles").getAsJsonArray().get(r).getAsJsonObject().get("fileName").getAsString();
-                    frame.log("Downloading mod" + "(" + i + "/" + Integer.toString(mods.size()) + "): " + mod.get("name").getAsString());
-                    Utils.download(mod.get("latestFiles").getAsJsonArray().get(r).getAsJsonObject().get("downloadUrl").getAsString(), new File(CModpackDownloader.tmpFolder, "/profile/mods/" + fileName).getAbsolutePath());
+                Utils.download(modFile.get("downloadUrl").getAsString(), new File(CModpackDownloader.tmpFolder, "/profile/mods/" + modFile.get("fileName").getAsString()).getAbsolutePath());
+            } catch (IOException e) {
+                int r = 0;
+                while(r < 5){
+                    try{
+                        Utils.download(modFile.get("downloadUrl").getAsString(), new File(CModpackDownloader.tmpFolder, "/profile/mods/" + modFile.get("fileName").getAsString()).getAbsolutePath());
+                        return true;
+                    }catch(IOException exc){
+                        r++;
+                        frame.log("There was an unexpected error while downloading the mod. Retrying..." + "(" + r + "/" + 5 + ")");
+                        if(r==5){
+                            exc.printStackTrace();
+                            frame.log("ERROR: The mod couldn't be downloaded.");
+                            return false;
+                        }
+                    }
                 }
+                e.printStackTrace();
             }
         }
         return true;
+    }
+
+    private JsonObject getModFile(JsonObject manifest, int index){
+        String modURL = baseURL + "/addon/";
+        JsonArray mods = manifest.get("files").getAsJsonArray();
+        JsonObject result = null;
+        try {
+            result = Utils.getJSON(modURL + mods.get(index).getAsJsonObject().get("projectID").getAsInt() + "/file/" + mods.get(index).getAsJsonObject().get("fileID").getAsString()).getAsJsonObject();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    private JsonObject getModInfo(JsonObject manifest, int index){
+        String modURL = baseURL + "/addon/";
+        JsonArray mods = manifest.get("files").getAsJsonArray();
+        JsonObject result = null;
+        try {
+            result = Utils.getJSON(modURL + mods.get(index).getAsJsonObject().get("projectID").getAsInt()).getAsJsonObject();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return result;
     }
 
     private void copyOverride(){

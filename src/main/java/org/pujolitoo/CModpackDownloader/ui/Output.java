@@ -1,6 +1,8 @@
 package org.pujolitoo.CModpackDownloader.ui;
 
 
+import org.pujolitoo.CModpackDownloader.Utils;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -24,8 +26,11 @@ import javax.swing.LayoutStyle;
 public class Output extends JDialog {
 	public Output(Window owner) {
 		super(owner);
+		this.parent = owner;
 		initComponents();
 	}
+
+	Window parent;
 
 	private void initComponents() {
 		// JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
@@ -38,6 +43,7 @@ public class Output extends JDialog {
 		//======== this ========
 		setModal(true);
 		setResizable(false);
+		Utils.centerWindow((Window)this, parent);
 		Container contentPane = getContentPane();
 
 		this.addWindowListener(new java.awt.event.WindowAdapter(){

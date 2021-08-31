@@ -1,10 +1,11 @@
 package org.pujolitoo.CModpackDownloader;
 
+import java.awt.*;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Scanner;
-import org.asynchttpclient.*;
+
 import org.pujolitoo.CModpackDownloader.enums.ProjectInfo;
 
 import java.io.*;
@@ -20,6 +21,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonArray;
 
+import javax.swing.*;
+
 
 public class Utils {
     public static FileOutputStream stream;
@@ -30,7 +33,6 @@ public class Utils {
         try {
         BufferedReader rd = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
         String jsonText = readAll(rd);
-        System.out.println(jsonText);
         JsonElement json = JsonParser.parseString(jsonText);
         return json;
         } finally {
@@ -39,38 +41,27 @@ public class Utils {
     }
 
 
-    public static boolean download(String url, String path){
-
+    public static boolean download(String url, String path)throws IOException {
+        if(url.contains(" "))
+            url = url.replace(" ", "%20");
         InputStream in = null;
-		try {
-			in = new URL(url).openStream();
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-        try {
-			Files.copy(in, Paths.get(path), StandardCopyOption.REPLACE_EXISTING);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+        in = new URL(url).openStream();
+        Files.copy(in, Paths.get(path), StandardCopyOption.REPLACE_EXISTING);
 
         return true;
     }
 
     public static Project getProjectMetadata(String url, ProjectInfo type){
-        JsonObject obj = null;
-        Project project = null;
         JsonObject projectJson = null;
+        Project project = null;
         try {
-            obj = getJSON(url).getAsJsonObject();
-            projectJson = (JsonObject) obj.getAsJsonObject();
+            projectJson = getJSON(url).getAsJsonObject();
+            project = createProject(projectJson);
         } catch (IOException e) {
             e.printStackTrace();
         }catch(IllegalStateException e){
             return null;
         }
-        project = createProject(projectJson);
         return project;
     }
 
@@ -125,6 +116,15 @@ public class Utils {
 			e.printStackTrace();
 		}
         return json;
+    }
+
+    public static void deleteTemp(){
+        Utils.deleteFolder(CModpackDownloader.tmpFolder);
+        CModpackDownloader.tmpFolder.mkdir();
+    }
+
+    public static void centerWindow(Window window, Component parentWindow){
+        window.setLocationRelativeTo(parentWindow);
     }
 
     
