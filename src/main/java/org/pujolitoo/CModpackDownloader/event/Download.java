@@ -220,9 +220,10 @@ public class Download implements ActionListener{
                 int r = 0;
                 while(r < 5){
                     try{
+                        Thread.sleep(5000);
                         Utils.download(modFile.get("downloadUrl").getAsString(), new File(CModpackDownloader.tmpFolder, "/profile/mods/" + modFile.get("fileName").getAsString()).getAbsolutePath());
                         return true;
-                    }catch(IOException exc){
+                    }catch(IOException | InterruptedException exc){
                         r++;
                         frame.log("There was an unexpected error while downloading the mod. Retrying..." + "(" + r + "/" + 5 + ")");
                         if(r==5){
